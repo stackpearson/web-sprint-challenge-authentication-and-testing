@@ -2,8 +2,20 @@ const router = require('express').Router();
 const Users = require('./userModel.js');
 const jwt = require('jsonwebtoken')
 const bcryptjs = require('bcryptjs');
-const secret = process.send.JWT_SECRET || 'secret stringy thingy';
+const authenticate = require('../auth/authenticate-middleware.js')
 
+
+router.get('/users', authenticate, (req, res) => {
+  Users.find()
+    .then(users => {
+      console.log(users)
+      res.status(200).json(users)
+    })
+    .catch(err => {
+      console.log(err)
+      res.status(500).json({message: 'server error'})
+    })
+})
 
 router.post('/register', async (req, res) => {
   const rounds = process.env.BCRYPT_ROUNDS || 8;
