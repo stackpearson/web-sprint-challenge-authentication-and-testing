@@ -4,27 +4,21 @@
 */
 
 const jwt = require('jsonwebtoken');
-const secret = process.send.JWT_SECRET || 'secret stringy thingy';
-
-
+const { jwtSecret } = require('../config/secrets.js');
 
 module.exports = (req, res, next) => {
-    const token = req.headers.authorization ?
-    req.headers.authorization.split(' ')[1] : 
-    '';
+    const { authorization } = req.headers;
 
-    console.log('token', token)
-
-    if (token) {
-        jwt.verify(token, secret, (err, decodedToken) => {
-            if (err) {
-                res.status(401).json({message: 'missing or bad credentials provided'});
+    if(authorization){
+        jwt.verify(authorization, jwtSecret, (err, decodedToken) => {
+            if(err){
+                res.status(401).json({message: 'invalid credentials'})
             } else {
-                req.decodedToken = decodedToken;
-                next();
+                req.decodedToken = decodedToken
+                next()
             }
-        });
+        })
     } else {
-        res.status(401).json({message: 'missing or bad credentials provided'});
+        res.status(500).json({message: 'no credentials provided'})
     }
-};
+}
